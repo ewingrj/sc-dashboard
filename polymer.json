@@ -21,6 +21,7 @@
   },
   "builds": [
     {
+      "addServiceWorker": false,
       "preset": "es5-unbundled"
     }
   ]
