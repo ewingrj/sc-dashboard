@@ -1,0 +1,77 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sc-avg-tx-value">
+    <template>
+        <style include="shared-styles">
+            .center {
+                text-align: center;
+            }
+        </style>
+
+        <div class="center">
+            <h2>Average Deal Value</h2>
+            <p>Completed Deals: <b>[[completedAvgValue]] SWT</b></p>
+            <p>All Deals: <b>[[avgValue]] SWT</b></p>
+            <p class="small">30 day moving average</p>
+        </div>
+    </template>
+
+    <script>
+      class ScAvgTxValue extends Polymer.Element {
+        static get is() { return 'sc-avg-tx-value'; }
+
+        static get properties() {
+          return {
+            deals: Array,
+
+            completedAvgValue: {
+              type: Number,
+              readOnly: true,
+              notify: false,
+            },
+
+            avgValue: {
+              type: Number,
+              readOnly: true,
+              notify: false,
+            },
+          };
+        }
+
+        static get observers() {
+          return [
+            '_calculateAvgs(deals.splices)',
+          ];
+        }
+
+        _calculateAvgs() {
+
+          if (!this.deals) {
+            return;
+          }
+
+          let completedValSum = 0;
+          let valSum = 0;
+          let totalCompleted = 0;
+
+          let oneMonth = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30;
+
+          this.deals.forEach((deal) => {
+            if (deal.created >= oneMonth) {
+              if (deal.status === 'done') {
+                completedValSum += deal.value;
+                totalCompleted++;
+              }
+
+              valSum += deal.value;
+            }
+          });
+
+          this._setCompletedAvgValue((completedValSum / 1e18 / totalCompleted).toFixed(2));
+          this._setAvgValue((valSum / 1e18 / this.deals.length).toFixed(2));
+        }
+      }
+
+      window.customElements.define(ScAvgTxValue.is, ScAvgTxValue);
+    </script>
+</dom-module>

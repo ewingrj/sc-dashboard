@@ -1,0 +1,227 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sc-hashtag">
+    <script>
+      class ScHashtag extends Polymer.Element {
+        static get is() {
+          return 'sc-hashtag';
+        }
+
+        static get properties() {
+          return {
+
+            abi: {
+              type: array,
+              readOnly: true,
+              value:
+            },
+
+            address: {
+              type: String,
+
+            }
+
+            hashtag: {
+              type: Object,
+              readOnly: true,
+              notify: true,
+            },
+          };
+        }
+
+        ready() {
+          super.ready();
+
+          let dealForTwoAbi = [
+            {
+              "constant": true,
+              "inputs": [],
+              "name": "provider",
+              "outputs": [
+                {
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": true,
+              "inputs": [],
+              "name": "providerValue",
+              "outputs": [
+                {
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": false,
+              "inputs": [
+                {
+                  "name": "_to",
+                  "type": "address"
+                },
+                {
+                  "name": "_amount",
+                  "type": "uint256"
+                }
+              ],
+              "name": "payout",
+              "outputs": [
+                {
+                  "name": "success",
+                  "type": "bool"
+                }
+              ],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": true,
+              "inputs": [],
+              "name": "status",
+              "outputs": [
+                {
+                  "name": "",
+                  "type": "uint8"
+                }
+              ],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": false,
+              "inputs": [
+                {
+                  "name": "_newStatus",
+                  "type": "uint8"
+                }
+              ],
+              "name": "setStatus",
+              "outputs": [],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": false,
+              "inputs": [
+                {
+                  "name": "_newSeekerValue",
+                  "type": "uint256"
+                },
+                {
+                  "name": "_provider",
+                  "type": "address"
+                },
+                {
+                  "name": "_providerValue",
+                  "type": "uint256"
+                }
+              ],
+              "name": "assignTo",
+              "outputs": [],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": true,
+              "inputs": [],
+              "name": "owner",
+              "outputs": [
+                {
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": true,
+              "inputs": [],
+              "name": "hashtag",
+              "outputs": [
+                {
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": false,
+              "inputs": [
+                {
+                  "name": "newOwner",
+                  "type": "address"
+                }
+              ],
+              "name": "transferOwnership",
+              "outputs": [],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": true,
+              "inputs": [],
+              "name": "seeker",
+              "outputs": [
+                {
+                  "name": "",
+                  "type": "address"
+                }
+              ],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "constant": true,
+              "inputs": [],
+              "name": "seekerValue",
+              "outputs": [
+                {
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "payable": false,
+              "type": "function"
+            },
+            {
+              "inputs": [
+                {
+                  "name": "_seeker",
+                  "type": "address"
+                },
+                {
+                  "name": "_hashtag",
+                  "type": "address"
+                },
+                {
+                  "name": "_offerValue",
+                  "type": "uint256"
+                }
+              ],
+              "payable": false,
+              "type": "constructor"
+            }
+          ];
+
+          this.set('config.web3Host', 'https://ethpool.swarm.city');
+          this.set('config.swtTokenAddress', '0xb9e7f8568e08d5659f5d29c4997173d84cdf2607');
+          this.set('config.dealForTwoFactoryAddress', '0xAd3Eec26E6FEF3bAaa0CeFdCf7172c3E1db546Af');
+          this.set('config.dealForTwoAbi', dealForTwoAbi);
+          this.set('config.pioneerAddress', '0x2e17d4c60a2fc3f1d586d2ca9d66b52f80a043c0');
+        }
+
+      }
+
+      window.customElements.define(ScHashtag.is, ScHashtag);
+    </script>
+</dom-module>
