@@ -1,0 +1,41 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sc-config">
+    <script>
+      class ScConfig extends Polymer.Element {
+        static get is() {
+          return 'sc-config';
+        }
+
+        static get properties() {
+          return {
+
+            config: {
+              type: Object,
+              computed: '_initConfig()',
+              readOnly: true,
+              notify: true,
+            },
+          };
+        }
+
+        _initConfig() {
+          return {
+            web3Host: 'https://ethpool.swarm.city',
+            swtTokenAddress: '0xb9e7f8568e08d5659f5d29c4997173d84cdf2607',
+            dealForTwoFactoryAddress: '0xAd3Eec26E6FEF3bAaa0CeFdCf7172c3E1db546Af',
+            dealForTwoFactoryAbi: this._getDealForTwoFactoryAbi(),
+            pioneerAddress: '0x2e17d4c60a2fc3f1d586d2ca9d66b52f80a043c0',
+          };
+        }
+
+        _getDealForTwoFactoryAbi() {
+          return JSON.parse(
+              '[{"constant":false,"inputs":[{"name":"_dealid","type":"string"},{"name":"_metadata","type":"string"}],"name":"cancelDeal","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"hashtagToken","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_dealid","type":"string"},{"name":"_dealowner","type":"address"}],"name":"readDeal","outputs":[{"name":"status","type":"uint8"},{"name":"commissionValue","type":"uint256"},{"name":"dealValue","type":"uint256"},{"name":"provider","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_dealid","type":"string"},{"name":"_offerValue","type":"uint256"},{"name":"_metadata","type":"string"}],"name":"makeDealForTwo","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_dealid","type":"string"},{"name":"_metadata","type":"string"}],"name":"payout","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_dealid","type":"string"},{"name":"_dealowner","type":"address"},{"name":"_seekerFraction","type":"uint256"},{"name":"_metadata","type":"string"}],"name":"resolve","outputs":[],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_dealid","type":"string"},{"name":"_dealowner","type":"address"},{"name":"_metadata","type":"string"}],"name":"fundDeal","outputs":[],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"hashtag","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"_dealid","type":"string"},{"name":"_dealowner","type":"address"},{"name":"_metadata","type":"string"}],"name":"dispute","outputs":[],"payable":false,"type":"function"},{"inputs":[{"name":"_hashtag","type":"address"}],"payable":false,"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"owner","type":"address"},{"indexed":false,"name":"dealid","type":"string"},{"indexed":false,"name":"metadata","type":"string"}],"name":"NewDealForTwo","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"provider","type":"address"},{"indexed":false,"name":"owner","type":"address"},{"indexed":false,"name":"dealid","type":"string"},{"indexed":false,"name":"metadata","type":"string"}],"name":"FundDeal","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"name":"owner","type":"address"},{"indexed":false,"name":"dealid","type":"string"},{"indexed":false,"name":"newstatus","type":"uint8"},{"indexed":false,"name":"metadata","type":"string"}],"name":"DealStatusChange","type":"event"}]');
+        }
+
+      }
+
+      window.customElements.define(ScConfig.is, ScConfig);
+    </script>
+</dom-module>

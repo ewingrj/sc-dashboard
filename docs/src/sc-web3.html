@@ -1,0 +1,38 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/web3/dist/web3.min.js">
+
+<dom-module id="sc-web3">
+    <script>
+      class ScWeb3 extends Polymer.Element {
+        static get is() {
+          return 'sc-web3';
+        }
+
+        static get properties() {
+          return {
+            host: {
+              type: String,
+              observer: '_initWeb3',
+            },
+            web3: {
+              type: Object,
+              readOnly: true,
+              notify: true,
+            },
+          };
+        }
+
+        _initWeb3(host) {
+
+          if (!host || this.web3) return;
+
+          let provider = new Web3.providers.HttpProvider(host);
+
+          this._setWeb3(new Web3(provider));
+        }
+
+      }
+
+      window.customElements.define(ScWeb3.is, ScWeb3);
+    </script>
+</dom-module>

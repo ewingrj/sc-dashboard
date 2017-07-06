@@ -1,0 +1,71 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/highcharts-chart/highcharts-chart.html">
+
+<dom-module id="sc-daily-txs">
+    <template>
+
+        <highcharts-chart id="dailyTransactionChart" type="spline" data="[[dailyTransactionData]]"
+                          title="Daily Transactions"></highcharts-chart>
+    </template>
+
+    <script>
+      class ScDailyTxs extends Polymer.Element {
+        static get is() { return 'sc-daily-txs'; }
+
+        static get properties() {
+          return {
+            deals: Array,
+            dailyTransactionData: {
+              type: Array,
+              computed: '_computeDailyTransactions(deals.splices)',
+            },
+          };
+        }
+
+        ready() {
+          super.ready();
+
+          this.dailyTransactionData = [];
+          this.$.dailyTransactionChart.xLabel = 'Date';
+          this.$.dailyTransactionChart.yLabel = '# Deals Created';
+          this.$.dailyTransactionChart.tooltipOptions = {
+            pointFormat: '{point.y} transactions<br/>',
+          };
+        }
+
+        _computeDailyTransactions() {
+
+          if (!this.deals) {
+            return;
+          }
+
+          let dailyTxs = {};
+
+          this.deals.forEach((deal) => {
+            let d = new Date(0);
+            d.setUTCSeconds(deal.created);
+
+            let dateString = d.toLocaleDateString();
+
+            if (dailyTxs[dateString]) {
+              dailyTxs[dateString] += 1;
+            } else {
+              dailyTxs[dateString] = 1;
+            }
+          });
+
+          let keys = Object.keys(dailyTxs);
+          keys.sort();
+
+          this.$.dailyTransactionChart.xAxis = {
+            categories: keys,
+            type: 'category',
+          };
+
+          return keys.map((k) => dailyTxs[k]);
+        }
+      }
+
+      window.customElements.define(ScDailyTxs.is, ScDailyTxs);
+    </script>
+</dom-module>

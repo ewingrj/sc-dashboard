@@ -1,0 +1,82 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sc-hashtag-users">
+    <template>
+        <style include="shared-styles">
+            .center {
+                text-align: center;
+            }
+        </style>
+
+        <div class="center">
+            <h2>Active Users</h2>
+            <p>last 24 hrs: <b>[[dailyUsers]]</b></p>
+            <p>last 30 days: <b>[[monthlyUsers]]</b></p>
+        </div>
+    </template>
+
+    <script>
+      class ScHashtagUsers extends Polymer.Element {
+        static get is() { return 'sc-hashtag-users'; }
+
+        static get properties() {
+          return {
+            deals: Array,
+
+            dailyUsers: {
+              type: Number,
+              readOnly: true,
+              notify: false,
+            },
+
+            monthlyUsers: {
+              type: Number,
+              readOnly: true,
+              notify: false,
+            },
+          };
+        }
+
+        static get observers() {
+          return [
+            '_calculateUsers(deals.splices)',
+          ];
+        }
+
+        _calculateUsers() {
+
+          if (!this.deals) {
+            return;
+          }
+
+          let dailyUsers = new Set();
+          let monthlyUsers = new Set();
+
+          let oneMonth = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30;
+          let oneDay = Math.floor(Date.now() / 1000) - 60 * 60 * 24;
+
+          this.deals.forEach((deal) => {
+            if (deal.created >= oneDay) {
+              dailyUsers.add(deal.seeker);
+
+              if (deal.provider && !deal.provider.startsWith('0x0')) {
+                monthlyUsers.add(deal.provider);
+              }
+            }
+            if (deal.created >= oneMonth) {
+              monthlyUsers.add(deal.seeker);
+
+              if (deal.provider && !deal.provider.startsWith('0x0')) {
+                monthlyUsers.add(deal.provider);
+              }
+            }
+          });
+
+          this._setDailyUsers(dailyUsers.size);
+          this._setMonthlyUsers(monthlyUsers.size);
+        }
+      }
+
+      window.customElements.define(ScHashtagUsers.is, ScHashtagUsers);
+    </script>
+</dom-module>
