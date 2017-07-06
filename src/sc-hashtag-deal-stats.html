@@ -6,15 +6,29 @@
             .center {
                 text-align: center;
             }
+
+            .row {
+                align-items: center;
+            }
+
+            .row > * {
+                flex-grow: 1;
+            }
         </style>
 
         <div class="center">
             <h2>Current Deal Stats</h2>
-            <p>Open: <b>[[openDeals]]</b></p>
-            <p>Disputed: <b>[[disputedDeals]]</b></p>
-            <p>Resolved: <b>[[resolvedDeals]]</b></p>
-            <p>Completed: <b>[[completedDeals]]</b></p>
-            <p>Canceled: <b>[[canceledDeals]]</b></p>
+            <div class="row">
+                <div>
+                    <p>Open: <b>[[openDeals]]</b></p>
+                    <p>Completed: <b>[[completedDeals]]</b></p>
+                    <p>Canceled: <b>[[canceledDeals]]</b></p>
+                </div>
+                <div>
+                    <p>Disputed: <b>[[disputedDeals]]</b></p>
+                    <p>Resolved: <b>[[resolvedDeals]]</b></p>
+                </div>
+            </div>
         </div>
     </template>
 
@@ -28,31 +42,31 @@
 
             openDeals: {
               type: Number,
-              value: 0,
+              value: function() {return 0;},
               notify: false,
             },
 
             canceledDeals: {
               type: Number,
-              value: 0,
+              value: function() {return 0;},
               notify: false,
             },
 
             completedDeals: {
               type: Number,
-              value: 0,
+              value: function() {return 0;},
               notify: false,
             },
 
             disputedDeals: {
               type: Number,
-              value: 0,
+              value: function() {return 0;},
               notify: false,
             },
 
             resolvedDeals: {
               type: Number,
-              value: 0,
+              value: function() {return 0;},
               notify: false,
             },
           };
