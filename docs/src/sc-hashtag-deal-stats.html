@@ -42,31 +42,36 @@
 
             openDeals: {
               type: Number,
-              value: function() {return 0;},
+              value: 0,
+              readOnly: true,
               notify: false,
             },
 
             canceledDeals: {
               type: Number,
-              value: function() {return 0;},
+              value: 0,
+              readOnly: true,
               notify: false,
             },
 
             completedDeals: {
               type: Number,
-              value: function() {return 0;},
+              value: 0,
+              readOnly: true,
               notify: false,
             },
 
             disputedDeals: {
               type: Number,
-              value: function() {return 0;},
+              value: 0,
+              readOnly: true,
               notify: false,
             },
 
             resolvedDeals: {
               type: Number,
-              value: function() {return 0;},
+              value: 0,
+              readOnly: true,
               notify: false,
             },
           };
@@ -74,62 +79,47 @@
 
         static get observers() {
           return [
-            '_calculateDealStates(deals.splices)',
+            '_calculateDealStates(deals.*)',
           ];
         }
 
-        _calculateDealStates(changeRecord) {
+        _calculateDealStates() {
 
-          if (!changeRecord) {
+          if (!this.deals) {
             return;
           }
 
-          changeRecord.indexSplices.forEach((s) => {
+          let openDeals = 0,
+              completedDeals = 0,
+              canceledDeals = 0,
+              disputedDeals = 0,
+              resolvedDeals = 0;
 
-            s.removed.forEach((deal) => {
-              switch (deal.status) {
-                case 'open':
-                  this.openDeals--;
-                  break;
-                case 'done':
-                  this.completedDeals--;
-                  break;
-                case 'canceled':
-                  this.canceledDeals--;
-                  break;
-                case 'disputed':
-                  this.disputedDeals--;
-                  break;
-                case 'resolved':
-                  this.resolvedDeals--;
-                  break;
-              }
-            });
-
-            for (let i = 0; i < s.addedCount; i++) {
-              let index = s.index + i;
-              let deal = s.object[index];
-
-              switch (deal.status) {
-                case 'open':
-                  this.openDeals++;
-                  break;
-                case 'done':
-                  this.completedDeals++;
-                  break;
-                case 'canceled':
-                  this.canceledDeals++;
-                  break;
-                case 'disputed':
-                  this.disputedDeals++;
-                  break;
-                case 'resolved':
-                  this.resolvedDeals++;
-                  break;
-              }
+          this.deals.forEach((deal) => {
+            switch (deal.status) {
+              case 'open':
+                openDeals++;
+                break;
+              case 'done':
+                completedDeals++;
+                break;
+              case 'canceled':
+                canceledDeals++;
+                break;
+              case 'disputed':
+                disputedDeals++;
+                break;
+              case 'resolved':
+                resolvedDeals++;
+                break;
             }
-
           });
+
+          this._setOpenDeals(openDeals);
+          this._setCompletedDeals(completedDeals);
+          this._setCanceledDeals(canceledDeals);
+          this._setDisputedDeals(disputedDeals);
+          this._setResolvedDeals(resolvedDeals);
         }
       }
 
