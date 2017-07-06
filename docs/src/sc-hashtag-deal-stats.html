@@ -1,0 +1,124 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="sc-hashtag-deal-stats">
+    <template>
+        <style include="shared-styles">
+            .center {
+                text-align: center;
+            }
+        </style>
+
+        <div class="center">
+            <h2>Current Deal Stats</h2>
+            <p>Open: <b>[[openDeals]]</b></p>
+            <p>Disputed: <b>[[disputedDeals]]</b></p>
+            <p>Resolved: <b>[[resolvedDeals]]</b></p>
+            <p>Completed: <b>[[completedDeals]]</b></p>
+            <p>Canceled: <b>[[canceledDeals]]</b></p>
+        </div>
+    </template>
+
+    <script>
+      class ScHashtagDealStats extends Polymer.Element {
+        static get is() { return 'sc-hashtag-deal-stats'; }
+
+        static get properties() {
+          return {
+            deals: Array,
+
+            openDeals: {
+              type: Number,
+              value: 0,
+              notify: false,
+            },
+
+            canceledDeals: {
+              type: Number,
+              value: 0,
+              notify: false,
+            },
+
+            completedDeals: {
+              type: Number,
+              value: 0,
+              notify: false,
+            },
+
+            disputedDeals: {
+              type: Number,
+              value: 0,
+              notify: false,
+            },
+
+            resolvedDeals: {
+              type: Number,
+              value: 0,
+              notify: false,
+            },
+          };
+        }
+
+        static get observers() {
+          return [
+            '_calculateDealStates(deals.splices)',
+          ];
+        }
+
+        _calculateDealStates(changeRecord) {
+
+          if (!changeRecord) {
+            return;
+          }
+
+          changeRecord.indexSplices.forEach((s) => {
+
+            s.removed.forEach((deal) => {
+              switch (deal.status) {
+                case 'open':
+                  this.openDeals--;
+                  break;
+                case 'done':
+                  this.completedDeals--;
+                  break;
+                case 'canceled':
+                  this.canceledDeals--;
+                  break;
+                case 'disputed':
+                  this.disputedDeals--;
+                  break;
+                case 'resolved':
+                  this.resolvedDeals--;
+                  break;
+              }
+            });
+
+            for (let i = 0; i < s.addedCount; i++) {
+              let index = s.index + i;
+              let deal = s.object[index];
+
+              switch (deal.status) {
+                case 'open':
+                  this.openDeals++;
+                  break;
+                case 'done':
+                  this.completedDeals++;
+                  break;
+                case 'canceled':
+                  this.canceledDeals++;
+                  break;
+                case 'disputed':
+                  this.disputedDeals++;
+                  break;
+                case 'resolved':
+                  this.resolvedDeals++;
+                  break;
+              }
+            }
+
+          });
+        }
+      }
+
+      window.customElements.define(ScHashtagDealStats.is, ScHashtagDealStats);
+    </script>
+</dom-module>

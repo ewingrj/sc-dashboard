@@ -4,8 +4,8 @@
 <dom-module id="sc-daily-txs">
     <template>
 
-        <highcharts-chart id="dailyTransactionChart" type="spline" data="[[dailyTransactionData]]"
-                          title="Daily Transactions"></highcharts-chart>
+        <highcharts-chart id="dailyDealsChart" type="spline" data="[[dailyDealData]]"
+                          title="Daily Deals"></highcharts-chart>
     </template>
 
     <script>
@@ -15,9 +15,9 @@
         static get properties() {
           return {
             deals: Array,
-            dailyTransactionData: {
+            dailyDealData: {
               type: Array,
-              computed: '_computeDailyTransactions(deals.splices)',
+              computed: '_computeDailyDeals(deals.splices)',
             },
           };
         }
@@ -25,15 +25,14 @@
         ready() {
           super.ready();
 
-          this.dailyTransactionData = [];
-          this.$.dailyTransactionChart.xLabel = 'Date';
-          this.$.dailyTransactionChart.yLabel = '# Deals Created';
-          this.$.dailyTransactionChart.tooltipOptions = {
-            pointFormat: '{point.y} transactions<br/>',
+          this.$.dailyDealsChart.xLabel = 'Date';
+          this.$.dailyDealsChart.yLabel = '# Deals Created';
+          this.$.dailyDealsChart.tooltipOptions = {
+            pointFormat: '{point.y} new deals<br/>',
           };
         }
 
-        _computeDailyTransactions() {
+        _computeDailyDeals() {
 
           if (!this.deals) {
             return;
@@ -57,7 +56,7 @@
           let keys = Object.keys(dailyTxs);
           keys.sort();
 
-          this.$.dailyTransactionChart.xAxis = {
+          this.$.dailyDealsChart.xAxis = {
             categories: keys,
             type: 'category',
           };

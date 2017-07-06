@@ -13,6 +13,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="sc-hashtag-tx-value.html">
 <link rel="import" href="sc-hashtag-users.html">
 <link rel="import" href="sc-daily-txs.html">
+<link rel="import" href="sc-hashtag-deal-stats.html">
 
 <dom-module id="sc-dashboard">
     <template>
@@ -44,6 +45,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </div>
             <div class="card">
                 <sc-avg-tx-value deals="[[deals]]"></sc-avg-tx-value>
+            </div>
+            <div class="card">
+                <sc-hashtag-deal-stats deals="[[deals]]"></sc-hashtag-deal-stats>
             </div>
         </div>
 
