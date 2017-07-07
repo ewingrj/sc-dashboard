@@ -57,14 +57,14 @@
 
           this.deals.forEach((deal) => {
             if (deal.created >= oneDay) {
-              dailyUsers.add(deal.seeker);
+              dailyUsers.add(deal.owner);
 
               if (deal.provider && !deal.provider.startsWith('0x0')) {
                 monthlyUsers.add(deal.provider);
               }
             }
             if (deal.created >= oneMonth) {
-              monthlyUsers.add(deal.seeker);
+              monthlyUsers.add(deal.owner);
 
               if (deal.provider && !deal.provider.startsWith('0x0')) {
                 monthlyUsers.add(deal.provider);
