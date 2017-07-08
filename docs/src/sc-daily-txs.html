@@ -4,7 +4,7 @@
 <dom-module id="sc-daily-txs">
     <template>
 
-        <highcharts-chart id="dailyDealsChart" type="spline" data="[[dailyDealData]]"
+        <highcharts-chart id="dailyDealsChart" type="spline" data="[[dailyDealData]]" loading="[[loading]]"
                           title="Daily Deals"></highcharts-chart>
     </template>
 
@@ -25,11 +25,15 @@
         ready() {
           super.ready();
 
-          this.$.dailyDealsChart.xLabel = 'Date';
-          this.$.dailyDealsChart.yLabel = '# Deals Created';
-          this.$.dailyDealsChart.tooltipOptions = {
-            pointFormat: '{point.y} new deals<br/>',
-          };
+          Polymer.RenderStatus.afterNextRender(this, () => {
+            this.$.dailyDealsChart.xLabel = 'Date';
+            this.$.dailyDealsChart.yLabel = '# Deals Created';
+            this.$.dailyDealsChart.tooltipOptions = {
+              pointFormat: '{point.y} new deals<br/>',
+            };
+            this.loading = (!this.deals || this.deals.length === 0);
+          });
+
         }
 
         _computeDailyDeals() {
@@ -38,9 +42,17 @@
             return;
           }
 
+          if (this.deals.length > 0 && this.deals[0].created) {
+            this.loading = false;
+          }
+
           let dailyTxs = {};
 
           this.deals.forEach((deal) => {
+            if (!deal.created) {
+              return;
+            }
+
             let d = new Date(0);
             d.setUTCSeconds(deal.created);
 

@@ -25,7 +25,12 @@
         static get observers() {
           return [
             '_resetWatch(config, hashtagAddress)',
+            '_cacheDeals(deals.splices)',
           ];
+        }
+
+        ready() {
+          this.statusQueue = [];
         }
 
         _initDealForTwoFactory() {
@@ -42,18 +47,30 @@
 
           if (!this._dealForTwoFactory) {
             this._initDealForTwoFactory();
+            let cache = ScHashtagData._loadCache();
+            this.deals = cache.deals || [];
+            this.fromBlock = (this.deals.length > 0) ? this.deals[this.deals.length - 1].blockNumber : undefined;
           }
 
-          if (this._currentEvent) {
-            this._currentEvent.stopWatching();
+          if (this._newDealEvent) {
+            this._newDealEvent.stopWatching();
           }
 
           this._startWatch();
         }
 
         _startWatch() {
-          this._currentEvent = this._dealForTwoFactory.NewDealForTwo(
-              {}, {fromBlock: 3969621}, this._handleLog.bind(this));
+          this._newDealEvent = this._dealForTwoFactory.NewDealForTwo(
+              {}, {fromBlock: this.fromBlock || 3969621});
+          this._dealStatusChangeEvent = this._dealForTwoFactory.DealStatusChange(
+              {}, {fromBlock: this.fromBlock || 3969621});
+          this._fundDealEvent = this._dealForTwoFactory.FundDeal(
+              {}, {fromBlock: this.fromBlock || 3969621});
+
+          this._newDealEvent.watch(this._handleLog.bind(this));
+          this._dealStatusChangeEvent.watch(this._handleStatus.bind(this));
+          this._fundDealEvent.watch(this._handleFundDeal.bind(this));
+
         }
 
         _handleLog(err, log) {
@@ -64,7 +81,13 @@
 
           let dealId = log.args.dealid;
           let owner = log.args.owner;
-          let created = this.web3.eth.getBlock(log.blockNumber).timestamp;
+
+          this.web3.eth.getBlock(log.blockNumber, (err, result) => {
+            this._updateDeals({
+              dealId: dealId,
+              created: result.timestamp,
+            });
+          });
 
           this._dealForTwoFactory.readDeal.call(dealId, owner, (err, result) => {
             if (err) {
@@ -72,21 +95,72 @@
               return;
             }
 
-            let newDeal = {
+            let mutation = {
               dealId: dealId,
-              owner: owner,
-              created: created,
-              status: this._parseStatus(result[0].toNumber()),
+              status: ScHashtagData._parseStatus(result[0].toNumber()),
               commission: result[1].toNumber(),
               value: result[2].toNumber(),
               provider: result[3],
             };
 
-            this.push('deals', newDeal);
+            this._updateDeals(mutation);
+          });
+
+          this._updateDeals({
+            dealId: dealId,
+            owner: owner,
+            blockNumber: log.blockNumber,
           });
         }
 
-        _parseStatus(statusInt) {
+        _handleStatus(err, log) {
+
+          if (err) {
+            console.log('sc-hashtag-data error ->', err);
+          }
+
+          let dealId = log.args.dealid;
+          let status = ScHashtagData._parseStatus(log.args.newstatus.toNumber());
+
+          this.statusQueue.push({
+            dealId: dealId,
+            status: status,
+            blockNumber: log.blockNumber,
+          });
+
+          this._purgeQueue();
+        }
+
+        _handleFundDeal(err, log) {
+
+          if (err) {
+            console.log('sc-hashtag-data error ->', err);
+          }
+
+          let dealId = log.args.dealid;
+          let provider = log.args.provider;
+
+          this._updateDeals({
+            dealId: dealId,
+            provider: provider,
+          });
+        }
+
+        _updateDeals(mutation) {
+          let index = this.deals.findIndex((deal) => {
+            return deal.dealId === mutation.dealId;
+          });
+
+          if (index > -1) {
+            let deal = this.deals[index];
+            deal = Object.assign({}, deal, mutation);
+            this.splice('deals', index, 1, deal);
+          } else {
+            this.push('deals', mutation);
+          }
+        }
+
+        static _parseStatus(statusInt) {
           switch (statusInt) {
             case 0:
               return 'open';
@@ -101,7 +175,60 @@
             default:
               console.log('sc-hashtag-data -> unknown status int:', statusInt);
           }
+        }
 
+        _cacheDeals() {
+          if (!this.web3) {
+            return;
+          }
+          localStorage.setItem('deals', JSON.stringify(this.deals));
+        }
+
+        _purgeQueue() {
+          let newQueue = [];
+
+          this.statusQueue.forEach((mutation) => {
+            const deal = this._getDeal(mutation.dealId);
+
+            if (deal) {
+              switch ((deal.status || 'init') + '_' + mutation.status) {
+                case 'init_open':
+                case 'init_done':
+                case 'init_disputed':
+                case 'init_resolved':
+                case 'init_canceled':
+                case 'open_done':
+                case 'open_disputed':
+                case 'open_resolved':
+                case 'open_canceled':
+                case 'disputed_resolved':
+                  this._updateDeals(mutation);
+                  break;
+                default:
+                  console.log('invalid status ->', mutation, deal);
+                  break;
+              }
+            } else {
+              newQueue.push(mutation);
+            }
+          });
+
+          this.statusQueue = newQueue;
+        }
+
+        _getDeal(dealId) {
+          for (let i = 0; i < this.deals.length; i++) {
+            if (this.deals[i].dealId === dealId) {
+              return this.deals[i];
+            }
+          }
+        }
+
+        static _loadCache() {
+          return {
+            deals: JSON.parse(localStorage.getItem('deals')),
+            lastBlock: localStorage.getItem('lastBlock'),
+          };
         }
 
       }
