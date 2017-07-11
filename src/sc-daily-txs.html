@@ -46,6 +46,8 @@
             this.loading = false;
           }
 
+          let txDates = [];
+          let txCounts = [];
           let dailyTxs = {};
 
           this.deals.forEach((deal) => {
@@ -65,15 +67,38 @@
             }
           });
 
-          let keys = Object.keys(dailyTxs);
-          keys.sort();
+          let tmpKeys = Object.keys(dailyTxs);
+          tmpKeys.sort((a, b) => {
+            a = new Date(a);
+            b = new Date(b);
+            return a > b ? 1 : a < b ? -1 : 0;
+          });
+
+          let keys = [];
+          // fill in any missing dates
+          tmpKeys.forEach((d) => {
+            // add first date
+            if (keys.length === 0) {
+              keys.push(d);
+              return;
+            }
+
+            let date = new Date(d);
+            let lastDate = new Date(keys[keys.length - 1]);
+
+            while (lastDate.setDate(lastDate.getDate() + 1) < date) {
+              keys.push(lastDate.toLocaleDateString());
+            }
+
+            keys.push(d);
+          });
 
           this.$.dailyDealsChart.xAxis = {
             categories: keys,
             type: 'category',
           };
 
-          return keys.map((k) => dailyTxs[k]);
+          return keys.map((k) => dailyTxs[k] || 0);
         }
       }
 
